@@ -19,6 +19,7 @@ from Quartz import (
     CGWindowListCopyWindowInfo,
     CGWindowListCreateImage,
     kCGEventLeftMouseDown,
+    kCGEventLeftMouseDragged,
     kCGEventLeftMouseUp,
     kCGHIDEventTap,
     kCGMouseButtonLeft,
@@ -29,6 +30,10 @@ from Quartz import (
 )
 
 CLICK_HOLD = 0.05
+# Hold after touching down so the phone registers the touch before it moves.
+TOUCH_DOWN_PAUSE = 0.02
+# Time between drag events in a flick, about the phone's 120Hz touch rate.
+DRAG_STEP_SECONDS = 0.008
 
 stop_requested = threading.Event()
 
@@ -103,3 +108,21 @@ def click(point):
     post_mouse(kCGEventLeftMouseDown, point)
     time.sleep(CLICK_HOLD)
     post_mouse(kCGEventLeftMouseUp, point)
+
+
+def flick(start, end, duration):
+    """Touch down at start and slide to end at a steady speed over duration
+    seconds, then let go. Each drag event is sent on schedule rather than
+    after a fixed sleep, so the speed the phone sees matches duration."""
+    steps = max(2, round(duration / DRAG_STEP_SECONDS))
+    post_mouse(kCGEventLeftMouseDown, start)
+    time.sleep(TOUCH_DOWN_PAUSE)
+    began = time.perf_counter()
+    for i in range(1, steps + 1):
+        fraction = i / steps
+        wait = began + duration * fraction - time.perf_counter()
+        if wait > 0:
+            time.sleep(wait)
+        point = (start[0] + (end[0] - start[0]) * fraction, start[1] + (end[1] - start[1]) * fraction)
+        post_mouse(kCGEventLeftMouseDragged, point)
+    post_mouse(kCGEventLeftMouseUp, end)
