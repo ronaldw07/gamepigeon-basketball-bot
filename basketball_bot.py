@@ -26,19 +26,18 @@ from screen import find_ball, find_hoop, find_start_button
 ROUND_SECONDS = 45
 START_WAIT_SECONDS = 10
 # Upward swipe length in window widths, and how long it takes. Every swipe
-# faster than about 0.15s throws the same distance, so these only need to be
-# comfortably quick.
+# faster than about 0.15s throws the same distance, so it can be as quick as
+# the phone still registers; 0.02s does.
 SWIPE_LENGTH = 0.35
-SWIPE_SECONDS = 0.04
+SWIPE_SECONDS = 0.02
 # A new ball appears about 0.6s after a throw; until then the thrown ball can
 # still show at the spot it left from.
 RESPAWN_SECONDS = 0.5
-# A new ball drops in and bounces for about 0.3s. Of 131 recorded shots
-# swiped within 0.12s of the ball appearing, 117 flew at a random wrong
-# height; of 81 swiped 0.15s or more after, all flew the same arc except one
-# test swipe sent far off target. A full round at 0.15s made every shot that
-# landed before the buzzer.
-BALL_READY_SECONDS = 0.15
+# A new ball drops in and bounces for about 0.3s. Of 130 recorded shots
+# swiped within 0.1s of the ball appearing, 116 flew at a random wrong
+# height. Full rounds at 0.15s and 0.12s made every shot that landed before
+# the buzzer.
+BALL_READY_SECONDS = 0.12
 # Hoop sightings kept for working out its speed, about two seconds' worth.
 HOOP_HISTORY = 120
 # Time for the last throw to land before a recording stops.

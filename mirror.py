@@ -31,7 +31,7 @@ from Quartz import (
 
 CLICK_HOLD = 0.05
 # Hold after touching down so the phone registers the touch before it moves.
-TOUCH_DOWN_PAUSE = 0.02
+TOUCH_DOWN_PAUSE = 0.01
 # Time between drag events in a flick, about the phone's 120Hz touch rate.
 DRAG_STEP_SECONDS = 0.008
 
