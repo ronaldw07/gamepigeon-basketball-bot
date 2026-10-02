@@ -36,8 +36,9 @@ RESPAWN_SECONDS = 0.5
 # A new ball drops in and bounces for about 0.3s. Of 131 recorded shots
 # swiped within 0.12s of the ball appearing, 117 flew at a random wrong
 # height; of 81 swiped 0.15s or more after, all flew the same arc except one
-# test swipe sent far off target. This leaves a margin over 0.15s.
-BALL_READY_SECONDS = 0.22
+# test swipe sent far off target. A full round at 0.15s made every shot that
+# landed before the buzzer.
+BALL_READY_SECONDS = 0.15
 # Hoop sightings kept for working out its speed, about two seconds' worth.
 HOOP_HISTORY = 120
 # Time for the last throw to land before a recording stops.
