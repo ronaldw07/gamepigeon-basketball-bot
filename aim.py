@@ -1,8 +1,9 @@
 """Which way to swipe so the ball goes through the hoop.
 
-Every shot flies the same distance: swipe speed and length don't change it
-(tested from 2.5 to 17 window widths per second). Only the swipe's direction
-matters. Positions are fractions of the window width.
+Every shot from a settled ball flies the same distance: swipe speed and
+length don't change it (tested from 2.5 to 17 window widths per second).
+Only the swipe's direction matters. Positions are fractions of the window
+width.
 
 Fitted from 31 tracked throws in a recorded round: a ball resting at ball_x,
 swiped with tilt (sideways travel per unit of upward travel), crosses rim

@@ -35,6 +35,10 @@ SWIPE_SECONDS = 0.08
 RESPAWN_SECONDS = 0.5
 # The ball must move less than this many pixels between captures to be resting.
 STILL_PIXELS = 3
+# How long the ball must have sat still before it is thrown. A ball swiped
+# sooner, while the game is still settling it, flies at one of several
+# heights at random; after 0.3s every shot flies the same arc.
+SETTLE_SECONDS = 0.3
 # Hoop sightings kept for working out its speed, about two seconds' worth.
 HOOP_HISTORY = 120
 # Time for the last throw to land before a recording stops.
@@ -124,7 +128,7 @@ def shoot(ball, hoop_history, window, image):
 def play_round(feed, round_end):
     """Throw every ball as soon as it comes to rest until the round ends."""
     hoop_history = deque(maxlen=HOOP_HISTORY)
-    throws, previous_ball, last_release, taken = [], None, 0, 0
+    throws, previous_ball, last_release, taken, resting_since = [], None, 0, 0, None
     while True:
         frame = feed.next_frame(taken)
         if frame is None:
@@ -136,16 +140,20 @@ def play_round(feed, round_end):
         if hoop is not None:
             hoop_history.append((taken, hoop / image.shape[1]))
         ball = find_ball(image) if taken - last_release > RESPAWN_SECONDS else None
-        resting = (
+        still = (
             ball is not None and previous_ball is not None
             and abs(ball[0] - previous_ball[0]) <= STILL_PIXELS
             and abs(ball[1] - previous_ball[1]) <= STILL_PIXELS
         )
         previous_ball = ball
-        if not resting or not hoop_history:
+        if not still:
+            resting_since = None
+            continue
+        resting_since = resting_since or taken
+        if taken - resting_since < SETTLE_SECONDS or not hoop_history:
             continue
         throws.append(shoot(ball, hoop_history, window, image))
-        last_release, previous_ball = throws[-1]["released"], None
+        last_release, previous_ball, resting_since = throws[-1]["released"], None, None
     return throws
 
 
