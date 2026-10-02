@@ -6,9 +6,10 @@ works at any screen size or window position.
 import cv2
 import numpy as np
 
-# The ball rests in the bottom part of the screen; the hoop and scoreboard
-# above it have orange-ish details too.
-BALL_SEARCH_TOP = 0.5
+# The resting ball's top edge sits about three quarters of the way down.
+# Searching only below 0.7 skips balls bouncing back across the floor, which
+# once got thrown as if they were the resting ball.
+BALL_SEARCH_TOP = 0.7
 # Fraction of the window width the ball must span. The resting ball is about
 # 0.25; balls bouncing back off the wall are under 0.15.
 BALL_MIN_WIDTH = 0.18

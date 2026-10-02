@@ -29,16 +29,15 @@ START_WAIT_SECONDS = 10
 # faster than about 0.15s throws the same distance, so these only need to be
 # comfortably quick.
 SWIPE_LENGTH = 0.35
-SWIPE_SECONDS = 0.08
+SWIPE_SECONDS = 0.04
 # A new ball appears about 0.6s after a throw; until then the thrown ball can
 # still show at the spot it left from.
 RESPAWN_SECONDS = 0.5
-# The ball must move less than this many pixels between captures to be resting.
-STILL_PIXELS = 3
-# How long the ball must have sat still before it is thrown. A ball swiped
-# sooner, while the game is still settling it, flies at one of several
-# heights at random; after 0.3s every shot flies the same arc.
-SETTLE_SECONDS = 0.3
+# A new ball drops in and bounces for about 0.3s. Of 131 recorded shots
+# swiped within 0.12s of the ball appearing, 117 flew at a random wrong
+# height; of 81 swiped 0.15s or more after, all flew the same arc except one
+# test swipe sent far off target. This leaves a margin over 0.15s.
+BALL_READY_SECONDS = 0.22
 # Hoop sightings kept for working out its speed, about two seconds' worth.
 HOOP_HISTORY = 120
 # Time for the last throw to land before a recording stops.
@@ -126,9 +125,9 @@ def shoot(ball, hoop_history, window, image):
 
 
 def play_round(feed, round_end):
-    """Throw every ball as soon as it comes to rest until the round ends."""
+    """Throw every ball once it has bounced into place, until the round ends."""
     hoop_history = deque(maxlen=HOOP_HISTORY)
-    throws, previous_ball, last_release, taken, resting_since = [], None, 0, 0, None
+    throws, appeared, last_release, taken = [], None, 0, 0
     while True:
         frame = feed.next_frame(taken)
         if frame is None:
@@ -140,20 +139,14 @@ def play_round(feed, round_end):
         if hoop is not None:
             hoop_history.append((taken, hoop / image.shape[1]))
         ball = find_ball(image) if taken - last_release > RESPAWN_SECONDS else None
-        still = (
-            ball is not None and previous_ball is not None
-            and abs(ball[0] - previous_ball[0]) <= STILL_PIXELS
-            and abs(ball[1] - previous_ball[1]) <= STILL_PIXELS
-        )
-        previous_ball = ball
-        if not still:
-            resting_since = None
+        if ball is None:
+            appeared = None
             continue
-        resting_since = resting_since or taken
-        if taken - resting_since < SETTLE_SECONDS or not hoop_history:
+        appeared = appeared or taken
+        if taken - appeared < BALL_READY_SECONDS or not hoop_history:
             continue
         throws.append(shoot(ball, hoop_history, window, image))
-        last_release, previous_ball, resting_since = throws[-1]["released"], None, None
+        last_release, appeared = throws[-1]["released"], None
     return throws
 
 
