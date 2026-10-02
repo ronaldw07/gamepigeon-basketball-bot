@@ -1,0 +1,6 @@
+numpy>=2.0
+opencv-python>=4.10
+pynput>=1.7.6
+pyobjc-framework-Quartz>=10.0
+pytest>=8.0
+pillow>=10.0
