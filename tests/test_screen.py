@@ -31,3 +31,24 @@ def test_finds_the_hoop_at_the_backboard_center():
     hoop_x = find_hoop(image)
 
     assert abs(hoop_x - image.shape[1] / 2) < 6
+
+
+def test_finds_everything_at_any_window_size():
+    original = load("playing.png")
+    ball = find_ball(original)
+    hoop = find_hoop(original)
+
+    # A smaller window, a bigger one, and a Retina display's 2x pixels.
+    for scale in (0.75, 1.5, 2.0):
+        image = np.array(Image.fromarray(original).resize(
+            (round(original.shape[1] * scale), round(original.shape[0] * scale)), Image.BILINEAR,
+        ))
+
+        scaled_ball = find_ball(image)
+        scaled_hoop = find_hoop(image)
+
+        # Same spot as a fraction of the window, within 1% of its width.
+        tolerance = 0.01 * image.shape[1]
+        assert abs(scaled_ball[0] - ball[0] * scale) < tolerance
+        assert abs(scaled_ball[1] - ball[1] * scale) < tolerance
+        assert abs(scaled_hoop - hoop * scale) < tolerance
